@@ -9765,6 +9765,30 @@
     "Items": [
       {
         "RomFile": {
+          "Path": "C:\\NES-Dev\\Projects\\src/game.nes",
+          "InnerFile": "",
+          "InnerFileIndex": 0
+        },
+        "PatchFile": null
+      },
+      {
+        "RomFile": {
+          "Path": "C:\\NES-Dev\\Projects\\src/controller.nes",
+          "InnerFile": "",
+          "InnerFileIndex": 0
+        },
+        "PatchFile": null
+      },
+      {
+        "RomFile": {
+          "Path": "C:\\NES-Dev\\Projects\\src/sprites.nes",
+          "InnerFile": "",
+          "InnerFileIndex": 0
+        },
+        "PatchFile": null
+      },
+      {
+        "RomFile": {
           "Path": "C:\\Users\\thesh_30gz4\\OneDrive - Neumont College of Computer Science\\School Work\\Year3\\2025_Summer\\Game Engines\\NES-Dev\\Projects\\src/sprites.nes",
           "InnerFile": "",
           "InnerFileIndex": 0

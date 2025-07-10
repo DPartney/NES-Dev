@@ -1,13 +1,14 @@
 Modules list:
 -------------
-sprites.o:
-    CODE              Offs=000000  Size=0000EF  Align=00001  Fill=0000
+controller.o:
+    CODE              Offs=000000  Size=0000F3  Align=00001  Fill=0000
     RODATA            Offs=000000  Size=000420  Align=00001  Fill=0000
-    ZEROPAGE          Offs=000000  Size=000001  Align=00001  Fill=0000
+    ZEROPAGE          Offs=000000  Size=00002E  Align=00001  Fill=0000
     HEADER            Offs=000000  Size=000008  Align=00001  Fill=0000
     VECTORS           Offs=000000  Size=000006  Align=00001  Fill=0000
     OAM               Offs=000000  Size=000100  Align=00001  Fill=0000
     CHARS             Offs=000000  Size=002000  Align=00001  Fill=0000
+    STARTUP           Offs=000000  Size=00002B  Align=00001  Fill=0000
 
 
 Segment list:
@@ -16,10 +17,11 @@ Name                   Start     End    Size  Align
 ----------------------------------------------------
 CHARS                 000000  001FFF  002000  00001
 HEADER                000000  000007  000008  00001
-ZEROPAGE              000000  000000  000001  00001
+ZEROPAGE              000000  00002D  00002E  00001
 OAM                   000200  0002FF  000100  00001
-CODE                  008000  0080EE  0000EF  00001
-RODATA                0080EF  00850E  000420  00001
+STARTUP               008000  00802A  00002B  00001
+CODE                  00802B  00811D  0000F3  00001
+RODATA                00811E  00853D  000420  00001
 VECTORS               00FFFA  00FFFF  000006  00001
 
 
