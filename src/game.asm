@@ -39,6 +39,8 @@ temp_var2:              .res 1    ; Second temp variable
 temp_ptr_low:           .res 1    ; 16-bit pointer (2 bytes)
 temp_ptr_high:          .res 1    ; 16-bit pointer (2 bytes)
 random_num:             .res 1    ; Random number generator value
+current_note_index:     .res 1    ; Keeps track of the index on the tune
+note_timer:             .res 1    ;
 
 ; Reserve remaining space in this section if needed
                         .res 11   ; Pad to $10 (optional - depends on your needs)
@@ -103,10 +105,14 @@ oam: .res 256	; sprite OAM data
     TYA
     PHA
 
-    INC time
-    LDA time
-    CMP #60
-
+    INC time      ; increment time by 1
+    LDA time      ; load time into accumulator
+    CMP #60       ; check if time is 60
+    BNE skip      ; if not 60 skip
+      INC seconds ; increment seconds by 1
+      LDA #0      ; reset time to 0
+      STA time
+    skip:
 
     ; restore registers
     PLA
@@ -220,6 +226,16 @@ remaining_loop:
 .endproc
 
 .proc init_sprites
+
+  LDX #0
+  load_sprite:
+  LDA sprite_data, X
+  ; y, index, attribute, x
+  STA SPRITE_0_ADDR, X
+  INX
+  CPX #4
+  BNE load_sprite
+
   ; set sprite tiles
   LDA #1
   STA SPRITE_0_ADDR + SPRITE_OFFSET_TILE
@@ -378,6 +394,66 @@ not_left:
     RTS                       ; Return to caller
 .endproc
 
+end_of_song:
+    LDA #$00
+    STA $4000              ; Silence Pulse 1
+    RTS
+
+play_next_note:
+    LDX current_note_index
+
+    LDA song_notes, X
+    BEQ end_of_song        ; Stop if pitch = 0
+
+    STA $4002              ; Timer low byte (pitch)
+    LDA #$00
+    STA $4003              ; Timer high + resets length counter
+
+    LDA song_durations, X
+    STA note_timer         ; Load duration for this note
+    RTS
+
+init_apu:
+  LDA #%00010001     ; Duty cycle 50%, constant volume mode
+  STA $4000          ; Pulse 1 control
+  RTS
+
+load_next_note:
+    JSR play_next_note
+    INC current_note_index
+    RTS
+
+music_update:
+    LDA note_timer
+    BEQ load_next_note     ; If 0, time to play next note
+
+    DEC note_timer
+    RTS
+
+NMI:
+    JSR music_update       ; Update music playback
+
+    RTI
+
+RESET:
+    SEI                    ; Disable interrupts
+    CLD
+
+    LDX #$FF
+    TXS                    ; Init stack
+
+    JSR init_apu           ; Set up Pulse 1 sound
+
+    ; Enable NMI (via $2000: bit 7 = 1 enables NMI)
+    LDA #%10000000     ; NMI enabled, no background/sprite rendering yet
+    STA $2000
+
+    LDA #0
+    STA current_note_index
+    STA note_timer
+
+    CLI                    ; Enable interrupts
+
 ;******************************************************************************
 ; Procedure: main
 ;------------------------------------------------------------------------------
@@ -517,9 +593,19 @@ palette_data:
 ; Load nametable data
 nametable_data:
   .incbin "assets/screen.nam"
+sprite_data:
+.byte 30, 1, 0, 40
+.byte 30, 2, 0, 48
+.byte 38, 3, 0, 40
+.byte 38, 4, 0, 48
 
 hello_txt:
 .byte 'S','O','U','L','S', 0
+
+song_notes:
+.byte $3F, $2F, $27, $3F, 0       ; Note pitches
+song_durations:
+.byte 30, 30, 30, 30, 0           ; Duration in frames
 
 ; Startup segment
 .segment "STARTUP"
